@@ -1,10 +1,9 @@
 <?php 
+$chatarray=array();
 $erromessage=array();
 //データベースに接続する//
 try{
     $pdo=new PDO('mysql:host=localhost;dbname=chat','root','root');
-    $sql="SELECT * FROM `chat`;";
-    $chatarray=$pdo->query($sql);
 }catch(PDOException $e){
     echo $e->getMessage();
 }
@@ -18,20 +17,22 @@ if(!empty($_POST["submitbutton"])){
         $erromessage["comment"]="コメントを入力してください";
     }
     if(empty($erromessage)){
+        $now=date("Y-m-d H:i:s");
         try{
-            $stmt=$pdo->prepare("INSERT INTO `chat` (`username`,`comment`) VALUE (:username,:comment);");
+            $stmt=$pdo->prepare("INSERT INTO `chat` (`username`,`comment`,`time`) VALUE (:username,:comment,:time);");
             $stmt->bindParam(':username',$_POST['username']);
             $stmt->bindParam(':comment',$_POST['comment']);
+            $stmt->bindParam(':time',$now);
             $stmt->execute();
         }
         catch(PDOException $e){
             echo $e->getMessage();
         }
     }
-    $pdo=null;
 }
-
-
+$sql="SELECT * FROM `chat`;";
+$chatarray=$pdo->query($sql);
+$pdo=null;
 
 
 
