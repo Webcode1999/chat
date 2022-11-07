@@ -1,4 +1,5 @@
 <?php 
+$erromessage=array();
 //データベースに接続する//
 try{
     $pdo=new PDO('mysql:host=localhost;dbname=chat','root','root');
@@ -7,7 +8,28 @@ try{
 }catch(PDOException $e){
     echo $e->getMessage();
 }
-
+if(!empty($_POST["submitbutton"])){
+    if(empty($_POST["username"])){
+        echo "名前を入力してください";
+        $erromessage["username"]="名前を入力してください";
+    }
+    if(empty($_POST["comment"])){
+        echo "コメントを入力してください";
+        $erromessage["comment"]="コメントを入力してください";
+    }
+    if(empty($erromessage)){
+        try{
+            $stmt=$pdo->prepare("INSERT INTO `chat` (`username`,`comment`) VALUE (:username,:comment);");
+            $stmt->bindParam(':username',$_POST['username']);
+            $stmt->bindParam(':comment',$_POST['comment']);
+            $stmt->execute();
+        }
+        catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    $pdo=null;
+}
 
 
 
@@ -25,14 +47,18 @@ try{
     <title>Document</title>
 </head>
 <body>
+    <?php 
+    foreach($chatarray as $chat):
+    ?>
     <div>
         <div>
-            <p>17</p>
-            <p>名前</p>
-            <p>2022-10-01 04:13:11</p>
+            <p><?php echo $chat["id"]?></p>
+            <p><?php echo $chat["username"]?></p>
+            <p><?php echo $chat["time"]?></p>
         </div>
-        <p>本文</p>
+        <p><?php echo $chat["comment"]?></p>
     </div>
+    <?php endforeach;?>
     <form action="" method="post">
         <div>
             <input type="submit" value="書き込む" name="submitbutton">
